@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Talyush Terminal</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Ubuntu Mono', monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #e0e0e0;
+  background: #000;
+}
+
+/* CRT scanlines efekti */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 1000;
+}
+
+/* CRT flicker efekti */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(18, 16, 16, 0.1);
+  opacity: 0;
+  z-index: 999;
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.27861; }
+  5% { opacity: 0.34769; }
+  10% { opacity: 0.23604; }
+  15% { opacity: 0.90626; }
+  20% { opacity: 0.18128; }
+  25% { opacity: 0.83891; }
+  30% { opacity: 0.65583; }
+  35% { opacity: 0.67807; }
+  40% { opacity: 0.26559; }
+  45% { opacity: 0.84693; }
+  50% { opacity: 0.96019; }
+  55% { opacity: 0.08594; }
+  60% { opacity: 0.20313; }
+  65% { opacity: 0.71988; }
+  70% { opacity: 0.53455; }
+  75% { opacity: 0.37288; }
+  80% { opacity: 0.71428; }
+  85% { opacity: 0.70419; }
+  90% { opacity: 0.7003; }
+  95% { opacity: 0.36108; }
+  100% { opacity: 0.24387; }
+}
+
+/* Terminal kutusu + üst bar */
+#terminal-shell {
+  position: relative;
+  width: 1000px;
+  height: 620px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #0a0a0a;
+  box-shadow:
+    0 0 20px rgba(0, 255, 136, 0.1),
+    0 0 40px rgba(0, 255, 136, 0.05),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+  border: 1px solid #1a1a1a;
+}
+
+/* Üst bar (pencere başlığı) */
+#terminal-header {
+  height: 32px;
+  background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #333;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.window-buttons {
+  display: flex;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.win-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.win-btn:hover {
+  transform: scale(1.1);
+}
+
+.win-close { background: #ff5f57; }
+.win-minimize { background: #febc2e; }
+.win-maximize { background: #28c840; }
+
+#terminal-title {
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  letter-spacing: 0.5px;
+}
+
+#terminal-title span.mode {
+  font-size: 10px;
+  color: #555;
+  text-transform: uppercase;
+}
+
+/* Asıl terminal alanı */
+#terminal-wrapper {
+  width: 100%;
+  height: calc(100% - 32px);
+  background: #080808;
+  border-radius: 0 0 4px 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+#terminal {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+/* CRT glow efekti */
+#terminal-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  z-index: 2;
+}
+
+/* Altta mini imza */
+#footer-note {
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+  font-size: 9px;
+  color: #444;
+  pointer-events: none;
+  z-index: 3;
+  letter-spacing: 0.5px;
+}
+
+/* Ekran kenarlarında hafif parlama */
+#terminal-shell::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  border-radius: 6px;
+  background: linear-gradient(
+    45deg,
+    transparent 40%,
+    rgba(0, 255, 136, 0.03) 50%,
+    transparent 60%
+  );
+  z-index: -1;
+}
+</style>
+</head>
+<body>
+
+<div id="terminal-shell">
+  <div id="terminal-header">
+    <div class="window-buttons">
+      <div class="win-btn win-close"></div>
+      <div class="win-btn win-minimize"></div>
+      <div class="win-btn win-maximize"></div>
+    </div>
+    <div id="terminal-title">
+      <span>Talyush // secure-node: localhost</span>
+      <span class="mode">mode: observer</span>
+    </div>
+  </div>
+
+  <div id="terminal-wrapper">
+    <div id="terminal"></div>
+  </div>
+
+  <div id="footer-note">
+    // Talyush: personal security lab interface
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+<script>
+const term = new Terminal({
+  cursorBlink: true,
+  fontFamily: 'Ubuntu Mono, monospace',
+  fontSize: 16,
+  lineHeight: 1.3,
+  theme: { background:'#000', foreground:'#ccc' },
+  scrollback: 2000,
+});
+term.open(document.getElementById('terminal'));
+
+// --------- BANNER ---------
+const bannerLines = [
+  "CrowWatch v0.1.7-beta  // human-signal monitor",
+  "------------------------------------------------------------",
+  ""
+];
+
+// --------- LOG METİNLERİ (timestamp + daha real) ---------
+const preLines = [
+  "[00:00:01] [INFO]  [BOOT]   Talyush node initializing...",
+  "[00:00:02] [OK]    [AUTH]   developer key verified",
+  "[00:00:03] [INFO]  [CRYPTO] encrypted channels established",
+  "[00:00:04] [WARN]  [FEED]   signal/noise ratio unstable",
+  "[00:00:05] [TRACE] [NET]    passive listeners attached",
+  "[00:00:06] [OK]    [SYSTEM] core services online",
+  "[00:00:07] [INFO]  [LOG]    tailing live events...",
+  "[00:00:08] [READY] [NODE]   awaiting operator decision"
+];
+
+// --------- RENK AYARLARI (Professional Theme) ---------
+const colors = [
+  '\x1b[38;5;2m',   // terminal green
+  '\x1b[38;5;4m',   // terminal blue
+  '\x1b[38;5;5m',   // terminal magenta
+  '\x1b[38;5;6m'    // terminal cyan
+];
+function randomColor() {
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// --------- HARF HARF YAZI ---------
+function typeHackerLine(line, callback){
+  let i = 0;
+  let coloredCount = 0;
+  const maxColored = 3;
+
+  function writeChar(){
+    if(i < line.length){
+      let char = line[i];
+
+      if(char === " " && coloredCount < maxColored && Math.random() < 0.2){
+        coloredCount++;
+        term.write(randomColor());
+      }
+
+      if(char !== " " && Math.random() < 0.18){
+        const noise = String.fromCharCode(33 + Math.floor(Math.random() * 94));
+        term.write(noise);
+        setTimeout(() => { term.write("\b" + char); }, 30);
+      } else {
+        term.write(char);
+      }
+
+      i++;
+      setTimeout(writeChar, 30);
+    } else {
+      term.write("\x1b[0m\r\n");
+      if(callback) callback();
+    }
+  }
+
+  writeChar();
+}
+
+let bannerIndex = 0;
+function typeBannerNext() {
+  if (bannerIndex < bannerLines.length) {
+    typeHackerLine(bannerLines[bannerIndex], () => {
+      bannerIndex++;
+      typeBannerNext();
+    });
+  } else {
+    typeNextLine();
+  }
+}
+
+let lineIndex = 0;
+function typeNextLine(){
+  if(lineIndex < preLines.length){
+    typeHackerLine(preLines[lineIndex], () => {
+      lineIndex++;
+      typeNextLine();
+    });
+  } else {
+    term.write("\r\n");
+    displayQuestion();
+  }
+}
+
+typeBannerNext();
+
+// Audio element for ambient sound
+const audio = new Audio('mixkit-horror-radio-signal-transmission-2564.mp3');
+audio.volume = 0.1;
+audio.loop = true;
+
+// Play ambient sound after a delay
+setTimeout(() => {
+  audio.play().catch(e => console.log('Audio autoplay blocked:', e));
+}, 2000);
+
+let inputBuffer = "";
+
+// --------- SORU ÇERÇEVESİ ---------
+const questionText = "ARE YOU A 1 (NORMAL) OR 0 (NOTHING)?";
+function displayQuestion(){
+  const frameWidth = questionText.length + 6;
+  const topBottom = "+" + "-".repeat(frameWidth) + "+\r\n";
+  const middle = "|" + " ".repeat(frameWidth) + "|\r\n";
+  const contentLine = "|" + "   " + questionText + "   |\r\n";
+
+  const frame = topBottom + middle + contentLine + middle + topBottom;
+
+  let i = 0;
+  function printFrame(){
+    if(i < frame.length){
+      const char = frame[i];
+      if(char === "1" || char === "0"){
+        term.write("\x1b[33m" + char + "\x1b[0m"); // sarı
+      } else {
+        term.write(char);
+      }
+      i++;
+      setTimeout(printFrame, 40);
+    } else {
+      term.write("\r\n> ");
+      term.focus();
+      term.onData(handleInput);
+    }
+  }
+  printFrame();
+}
+
+// --------- INPUT HANDLING ---------
+function handleInput(data){
+  for(let char of data){
+    if(char === '\r'){
+      term.write('\r\n');
+      processInput(inputBuffer.trim());
+      inputBuffer = "";
+      term.write("> ");
+    } else if(char === '\u007F'){
+      if(inputBuffer.length>0){
+        inputBuffer = inputBuffer.slice(0,-1);
+        term.write('\b \b');
+      }
+    } else {
+      // Security: Limit input length to prevent buffer overflow
+      if(inputBuffer.length < 50){
+        inputBuffer += char;
+        term.write(char);
+      }
+    }
+  }
+}
+
+// --------- 0 / 1 DAVRANIŞI (GÜNCELLENMİŞ) ---------
+function processInput(input){
+  if(input === "1"){
+    term.writeln("status: normal user detected");
+    term.writeln("access_level: public");
+    term.writeln("redirecting to main interface...");
+    setTimeout(()=>window.location.href = "main.html", 600);
+  } else if(input === "0"){
+    term.writeln("");
+    term.writeln("signal: anomaly detected");
+    term.writeln("origin: unknown");
+    term.writeln("access_level: special");
+    term.writeln("");
+    term.writeln("initiating challenge sequence...");
+    setTimeout(()=>window.location.href = "puzzle.html", 900);
+  } else {
+    term.writeln("unrecognized input. only 0 or 1 allowed.");
+  }
+}
+</script>
+</body>
+</html>

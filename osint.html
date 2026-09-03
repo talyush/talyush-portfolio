@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OSINT — Security Education</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-alt: #111111;
+            --fg: #e0e0e0;
+            --fg-muted: #888888;
+            --accent: #00ff88;
+            --accent-dim: rgba(0, 255, 136, 0.1);
+            --border: #222222;
+            --border-light: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--fg-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            color: var(--fg);
+            background: var(--bg-alt);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--fg-muted);
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::before {
+            content: "";
+            width: 3px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        p {
+            font-size: 15px;
+            color: var(--fg-muted);
+            margin-bottom: 16px;
+        }
+
+        .highlight {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        code {
+            background: var(--bg-alt);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--accent);
+        }
+
+        ul {
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: var(--fg-muted);
+        }
+
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .source-card {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 6px;
+        }
+
+        .source-title {
+            font-weight: 500;
+            color: var(--fg);
+            margin-bottom: 8px;
+        }
+
+        .source-desc {
+            font-size: 13px;
+            color: var(--fg-muted);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .container {
+                padding: 40px 20px;
+            }
+
+            .sources-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="main.html" class="back-link">← Back to Portfolio</a>
+        <span class="badge">Security Education</span>
+        <h1>OSINT</h1>
+        <p class="subtitle">Open Source Intelligence - Seeing through public data</p>
+    </div>
+
+    <p>
+        OSINT (Open Source Intelligence) is the practice of gathering information from publicly available sources to understand, analyze, and make decisions about targets.
+        It's about <strong>seeing</strong> patterns and connections that others miss in the vast ocean of public data.
+    </p>
+
+    <h2>The Philosophy of OSINT</h2>
+    <div class="highlight">
+        <p style="font-size: 16px; color: var(--fg);">
+            "Everything leaves a trace. The question is whether you know how to follow it."
+        </p>
+    </div>
+
+    <h2>Key Information Sources</h2>
+    <div class="sources-grid">
+        <div class="source-card">
+            <div class="source-title">Social Media</div>
+            <div class="source-desc">Profiles, connections, posts, photos, location data</div>
+        </div>
+        <div class="source-card">
+            <div class="source-title">Public Records</div>
+            <div class="source-desc">Business registrations, property records, court documents</div>
+        </div>
+        <div class="source-card">
+            <div class="source-title">Technical Data</div>
+            <div class="source-desc">DNS records, WHOIS data, IP geolocation</div>
+        </div>
+        <div class="source-card">
+            <div class="source-title">Search Engines</div>
+            <div class="source-desc">Advanced queries, cached pages, indexed content</div>
+        </div>
+    </div>
+
+    <h2>Common OSINT Techniques</h2>
+    <ul>
+        <li><strong>Username enumeration:</strong> Finding all accounts associated with a username across platforms</li>
+        <li><strong>Email investigation:</strong> Tracing email addresses to linked accounts and breaches</li>
+        <li><strong>Domain research:</strong> Analyzing domain registration and hosting information</li>
+        <li><strong>Image analysis:</strong> Reverse image search and metadata extraction</li>
+        <li><strong>Geolocation:</strong> Determining physical locations from digital footprints</li>
+    </ul>
+
+    <h2>Tools for OSINT</h2>
+    <div class="highlight">
+        <p><strong>Maltego:</strong> Visual link analysis and relationship mapping</p>
+        <p><strong>Shodan:</strong> Internet-connected device search engine</p>
+        <p><strong>theHarvester:</strong> Email, subdomain and people harvesting</p>
+        <p><strong>SpiderFoot:</strong> Automated OSINT framework</p>
+        <p><strong>Google Dorks:</strong> Advanced search operators for targeted reconnaissance</p>
+    </div>
+
+    <h2>Ethical Considerations</h2>
+    <p>
+        OSINT can be powerful but must be used responsibly:
+    </p>
+    <ul>
+        <li>Only gather information you have a legitimate need for</li>
+        <li>Respect privacy laws and regulations</li>
+        <li>Don't use OSINT for harassment or stalking</li>
+        <li>Document your sources and methodology</li>
+        <li>Report findings through appropriate channels</li>
+    </ul>
+
+    <h2>The Art of Seeing</h2>
+    <div class="highlight">
+        <p style="font-size: 16px; color: var(--fg);">
+            "OSINT isn't about finding secrets - it's about seeing what's already visible but overlooked. Every piece of public data tells a story if you know how to read it."
+        </p>
+        <p style="color: var(--fg-muted); font-size: 14px; margin-top: 12px;">
+            The most effective OSINT practitioners think like investigators - curious, methodical, and always looking for connections that others miss.
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

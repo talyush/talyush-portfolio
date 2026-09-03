@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404. That's an error.</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: arial, sans-serif;
+            background: #fff;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: normal;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .error-code {
+            font-size: 100px;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 20px;
+            letter-spacing: -5px;
+        }
+
+        .robot {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .hidden-message {
+            font-size: 12px;
+            color: #999;
+            margin-top: 40px;
+            font-style: italic;
+        }
+
+        a {
+            color: #1a0dab;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Fade in animation */
+        .container {
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="robot">🤖</div>
+        <div class="error-code">404</div>
+        <h1>That's an error.</h1>
+        <p>
+            The requested URL was not found on this server.
+            That's all we know.
+        </p>
+        <div class="hidden-message">
+            "Sometimes the best way to hide something is to make it look like it was never there."
+        </div>
+    </div>
+
+    <div class="footer">
+        Error 404 (Not Found)
+    </div>
+
+    <script>
+        // Easter egg: Konami code for secret return
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    // Secret return to terminal
+                    localStorage.removeItem('layer_exited'); // Clear the exit flag
+                    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:monospace;font-size:14px;color:#333;">Access restored. Redirecting...</div>';
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        // Console message for the curious
+        console.log('%c🦅 Talyush', 'font-size: 24px; font-weight: bold;');
+        console.log('%cYou found the truth. Or did you?', 'font-size: 14px; color: #666;');
+        console.log('%cSometimes the best way to hide something is to make it look like it was never there.', 'font-size: 12px; color: #999; font-style: italic;');
+    </script>
+</body>
+</html>

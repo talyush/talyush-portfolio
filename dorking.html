@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Dorking — Security Education</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-alt: #111111;
+            --fg: #e0e0e0;
+            --fg-muted: #888888;
+            --accent: #00ff88;
+            --accent-dim: rgba(0, 255, 136, 0.1);
+            --border: #222222;
+            --border-light: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--fg-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            color: var(--fg);
+            background: var(--bg-alt);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--fg-muted);
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::before {
+            content: "";
+            width: 3px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        p {
+            font-size: 15px;
+            color: var(--fg-muted);
+            margin-bottom: 16px;
+        }
+
+        .highlight {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        code {
+            background: var(--bg-alt);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--accent);
+        }
+
+        .code-block {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 6px;
+            margin: 16px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            background: none;
+            padding: 0;
+            color: var(--fg);
+        }
+
+        ul {
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: var(--fg-muted);
+        }
+
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        .note {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            padding: 16px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .note strong {
+            color: #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .container {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="main.html" class="back-link">← Back to Portfolio</a>
+        <span class="badge">Security Education</span>
+        <h1>Google Dorking</h1>
+        <p class="subtitle">Advanced search techniques for security reconnaissance</p>
+    </div>
+
+    <p>
+        Google Dorking (also called <strong>Google Hacking</strong>) is the art of using advanced search operators
+        to uncover information that was never meant to be publicly accessible.
+        It turns Google into a <strong>reconnaissance tool</strong> — a passive, stealthy method to map digital exposure.
+    </p>
+
+    <h2>Why It Matters</h2>
+    <p>
+        Misconfigured servers, forgotten backups, open directories, exposed admin panels, and sensitive files
+        often end up indexed by search engines.
+        With the right queries, these hidden resources become visible.
+    </p>
+
+    <h2>Core Operators</h2>
+    <div class="highlight">
+        <p><code>site:</code> — Limits results to a specific domain</p>
+        <p><code>inurl:</code> — Searches inside URLs</p>
+        <p><code>intitle:</code> — Searches inside page titles</p>
+        <p><code>intext:</code> — Searches inside page content</p>
+        <p><code>filetype:</code> — Filters by file extension</p>
+    </div>
+
+    <h2>Practical Examples</h2>
+    <div class="code-block">
+        <code>filetype:env "DB_PASSWORD"</code> – leaked environment variables<br>
+        <code>intitle:"index of" backup</code> – open backup directories<br>
+        <code>inurl:admin site:gov</code> – exposed government admin panels<br>
+        <code>filetype:sql "password"</code> – exposed database dumps
+    </div>
+
+    <h2>Ethical Use</h2>
+    <p>
+        Google Dorking is a core part of ethical reconnaissance.
+        No exploitation. No active interference.
+        Just visibility — revealing the digital shadows people forget to hide.
+    </p>
+
+    <div class="note">
+        <strong>Important:</strong> Always use these techniques responsibly and only on systems you have permission to test.
+    </div>
+
+    <h2>The Philosophy</h2>
+    <div class="highlight">
+        <p style="font-size: 16px; color: var(--fg);">
+            "The web reveals more than it hides — to those who know what to search for."
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

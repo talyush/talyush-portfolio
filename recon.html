@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reconnaissance — Security Education</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-alt: #111111;
+            --fg: #e0e0e0;
+            --fg-muted: #888888;
+            --accent: #00ff88;
+            --accent-dim: rgba(0, 255, 136, 0.1);
+            --border: #222222;
+            --border-light: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--fg-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            color: var(--fg);
+            background: var(--bg-alt);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--fg-muted);
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::before {
+            content: "";
+            width: 3px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        p {
+            font-size: 15px;
+            color: var(--fg-muted);
+            margin-bottom: 16px;
+        }
+
+        .highlight {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        code {
+            background: var(--bg-alt);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--accent);
+        }
+
+        ul {
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: var(--fg-muted);
+        }
+
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        .process-steps {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .step {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 500;
+            color: var(--fg);
+            margin-bottom: 4px;
+        }
+
+        .step-desc {
+            font-size: 13px;
+            color: var(--fg-muted);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .container {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="main.html" class="back-link">← Back to Portfolio</a>
+        <span class="badge">Security Education</span>
+        <h1>Reconnaissance</h1>
+        <p class="subtitle">The art of seeing what others miss</p>
+    </div>
+
+    <p>
+        Reconnaissance (recon) is the systematic process of gathering information about a target before any exploitation attempt.
+        It's about <strong>seeing</strong> - mapping out the digital landscape, understanding the terrain, and identifying potential entry points.
+    </p>
+
+    <h2>Why Recon Matters</h2>
+    <p>
+        In security, what you can't see can hurt you. Proper reconnaissance reveals:
+    </p>
+    <ul>
+        <li>Hidden services and exposed ports</li>
+        <li>Misconfigured security settings</li>
+        <li>Forgotten backup files and directories</li>
+        <li>Outdated software versions</li>
+        <li>Employee information and organizational structure</li>
+    </ul>
+
+    <h2>The Recon Process</h2>
+    <div class="process-steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <div class="step-title">Passive Recon</div>
+                <div class="step-desc">Gathering information without direct interaction - OSINT, search engines, public records</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <div class="step-title">Active Recon</div>
+                <div class="step-desc">Direct interaction with the target - port scanning, service enumeration, banner grabbing</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <div class="step-title">Vulnerability Assessment</div>
+                <div class="step-desc">Identifying potential weaknesses based on gathered information</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <div class="step-title">Documentation</div>
+                <div class="step-desc">Mapping findings and creating attack vectors</div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Tools of the Trade</h2>
+    <div class="highlight">
+        <p><strong>Nmap:</strong> Network mapping and port scanning</p>
+        <p><strong>Shodan:</strong> Internet-connected device search engine</p>
+        <p><strong>theHarvester:</strong> Email, subdomain and people harvesting</p>
+        <p><strong>Maltego:</strong> Visual link analysis tool</p>
+        <p><strong>Recon-ng:</strong> Full-featured Web Reconnaissance framework</p>
+    </div>
+
+    <h2>The Philosophy of Seeing</h2>
+    <div class="highlight">
+        <p style="font-size: 16px; color: var(--fg);">
+            "Reconnaissance is not about finding vulnerabilities - it's about understanding the target deeply enough to know where vulnerabilities might exist."
+        </p>
+        <p style="color: var(--fg-muted); font-size: 14px; margin-top: 12px;">
+            The best security researchers see patterns where others see chaos. They understand that every piece of information, no matter how small, contributes to the bigger picture.
+        </p>
+    </div>
+
+    <h2>Ethical Considerations</h2>
+    <p>
+        Reconnaissance should always be conducted with proper authorization. Unauthorized reconnaissance can be illegal and may be interpreted as a precursor to an attack.
+    </p>
+    <ul>
+        <li>Only scan systems you have permission to test</li>
+        <li>Document your findings responsibly</li>
+        <li>Report vulnerabilities through proper channels</li>
+        <li>Respect privacy and confidentiality</li>
+    </ul>
+</div>
+
+</body>
+</html>

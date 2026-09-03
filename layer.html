@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Talyush // Deep Layer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg-alt: #111111;
+  --fg: #e0e0e0;
+  --fg-muted: #888888;
+  --accent: #00ff88;
+  --accent-dim: rgba(0, 255, 136, 0.1);
+  --border: #222222;
+  --border-light: #333333;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  overflow: hidden;
+  color: var(--fg);
+}
+
+/* CRT scanlines efekti */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 1000;
+}
+
+/* CRT flicker efekti */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(18, 16, 16, 0.1);
+  opacity: 0;
+  z-index: 999;
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.27861; }
+  5% { opacity: 0.34769; }
+  10% { opacity: 0.23604; }
+  15% { opacity: 0.90626; }
+  20% { opacity: 0.18128; }
+  25% { opacity: 0.83891; }
+  30% { opacity: 0.65583; }
+  35% { opacity: 0.67807; }
+  40% { opacity: 0.26559; }
+  45% { opacity: 0.84693; }
+  50% { opacity: 0.96019; }
+  55% { opacity: 0.08594; }
+  60% { opacity: 0.20313; }
+  65% { opacity: 0.71988; }
+  70% { opacity: 0.53455; }
+  75% { opacity: 0.37288; }
+  80% { opacity: 0.71428; }
+  85% { opacity: 0.70419; }
+  90% { opacity: 0.7003; }
+  95% { opacity: 0.36108; }
+  100% { opacity: 0.24387; }
+}
+
+/* Subtle background animation */
+#matrix-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.03;
+}
+
+/* Terminal container */
+#layer-content {
+  position: relative;
+  z-index: 2;
+  width: 90%;
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 24px;
+  background: var(--bg-alt);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 0 20px rgba(0, 255, 136, 0.05),
+    0 0 40px rgba(0, 255, 136, 0.02),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  line-height: 1.6;
+  font-size: 14px;
+  color: var(--fg);
+}
+
+#terminal-output {
+  margin-bottom: 16px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+#terminal-output::-webkit-scrollbar {
+  width: 8px;
+}
+
+#terminal-output::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+#terminal-output::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.output-line {
+  margin: 4px 0;
+  padding: 4px 0;
+}
+
+.output-line.command {
+  color: var(--accent);
+}
+
+.output-line.response {
+  color: var(--fg-muted);
+}
+
+.output-line.system {
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
+.output-line.success {
+  color: var(--accent);
+}
+
+.output-line.error {
+  color: #ff5252;
+}
+
+.output-line.info {
+  color: #4fc3f7;
+}
+
+/* Prompt area */
+#prompt-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.prompt-symbol {
+  color: var(--accent);
+}
+
+#prompt-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  outline: none;
+}
+
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--accent);
+  margin-left: 2px;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Footer info */
+.system-info {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  font-size: 11px;
+  color: var(--fg-muted);
+  z-index: 3;
+  text-align: right;
+}
+
+/* Welcome message styling */
+.welcome-banner {
+  padding: 16px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.welcome-banner h2 {
+  color: var(--accent);
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.welcome-banner p {
+  color: var(--fg-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Command help */
+.help-section {
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+.help-section h3 {
+  color: var(--accent);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.help-section ul {
+  list-style: none;
+  margin: 0;
+}
+
+.help-section li {
+  padding: 4px 0;
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+
+.help-section li code {
+  color: var(--accent);
+  background: var(--bg-alt);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+</style>
+</head>
+<body>
+<script>
+// Check if user has already exited the deep layer
+if (localStorage.getItem('layer_exited') === 'true') {
+  window.location.href = '404.html';
+}
+</script>
+
+<canvas id="matrix-bg"></canvas>
+
+<div id="layer-content">
+  <div id="terminal-output"></div>
+  <div id="prompt-line">
+    <span class="prompt-symbol">root@deep-layer:~#</span>
+    <input type="text" id="prompt-input" autocomplete="off" spellcheck="false" autofocus>
+    <span class="cursor"></span>
+  </div>
+</div>
+
+<div class="system-info">
+  <div>Talyush Deep Layer v2.0</div>
+  <div>Access: RESTRICTED</div>
+  <div>Status: ENCRYPTED</div>
+</div>
+
+<audio id="ambient-sound" src="mixkit-horror-radio-signal-transmission-2564.mp3" preload="auto"></audio>
+
+<script>
+// Matrix rain effect
+const canvas = document.getElementById('matrix-bg');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
+const fontSize = 14;
+const columns = canvas.width / fontSize;
+const drops = Array(Math.floor(columns)).fill(1);
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#00ff88';
+  ctx.font = fontSize + 'px JetBrains Mono';
+
+  for (let i = 0; i < drops.length; i++) {
+    const text = chars[Math.floor(Math.random() * chars.length)];
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+      drops[i] = 0;
+    }
+    drops[i]++;
+  }
+}
+
+setInterval(drawMatrix, 50);
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// Terminal functionality
+const terminalOutput = document.getElementById('terminal-output');
+const promptInput = document.getElementById('prompt-input');
+
+const welcomeMessage = `
+<div class="welcome-banner">
+  <h2>WELCOME TO THE DEEP LAYER</h2>
+  <p>You've proven yourself worthy. This area contains detailed information about Talyush.</p>
+</div>
+<div class="output-line system">System: Access granted via successful challenge completion</div>
+<div class="output-line system">Security: Encrypted connection established</div>
+<div class="output-line system">Type 'help' for available commands</div>
+`;
+
+terminalOutput.innerHTML = welcomeMessage;
+
+// Security: HTML escape function to prevent XSS
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+const commands = {
+  help: () => `
+<div class="help-section">
+  <h3>Available Commands:</h3>
+  <ul>
+    <li><code>profile</code> - View detailed profile information</li>
+    <li><code>skills</code> - Display technical capabilities with levels</li>
+    <li><code>projects</code> - View project information</li>
+    <li><code>experience</code> - View security journey</li>
+    <li><code>contact</code> - Show encrypted contact methods</li>
+    <li><code>social</code> - Display social media profiles</li>
+    <li><code>philosophy</code> - Read the core philosophy</li>
+    <li><code>clear</code> - Clear terminal output</li>
+    <li><code>exit</code> - Return to surface layer</li>
+  </ul>
+</div>`,
+
+  profile: () => `
+<div class="output-line info">--- DETAILED PROFILE ---</div>
+<div class="output-line">Name: Talha Bağcı</div>
+<div class="output-line">Role: Security Researcher & Student</div>
+<div class="output-line">Location: Digital shadows</div>
+<div class="output-line">Specialty: Security research & development</div>
+<div class="output-line">Status: High school graduate, MIT applicant</div>
+<div class="output-line">Experience: 5+ years in cybersecurity</div>
+<div class="output-line">Focus: Defensive security, vulnerability analysis</div>
+<div class="output-line">Education: Applying to top universities (MIT, etc.)</div>
+<div class="output-line">Motto: "The art of breaking is the art of seeing what others miss"</div>
+<div class="output-line system">Profile loaded successfully</div>`,
+
+  skills: () => `
+<div class="output-line info">--- TECHNICAL CAPABILITIES ---</div>
+<div class="output-line">Penetration Testing: ██████████ 95%</div>
+<div class="output-line">Network Security:   ██████████ 90%</div>
+<div class="output-line">Web App Security:   █████████░ 85%</div>
+<div class="output-line">System Architecture: ████████░░ 80%</div>
+<div class="output-line">Python Development: ██████████ 95%</div>
+<div class="output-line">Go/Rust Development: ███████░░░ 75%</div>
+<div class="output-line">JavaScript/TS:      █████████░ 85%</div>
+<div class="output-line">Docker/Kubernetes:  ████████░░ 80%</div>
+<div class="output-line">Malware Analysis:   ███████░░░ 70%</div>
+<div class="output-line">Threat Intelligence: █████████░ 85%</div>
+<div class="output-line system">Skill assessment complete</div>`,
+
+  projects: () => `
+<div class="output-line info">--- PROJECTS ---</div>
+<div class="output-line">If you made it here, you already know what I build.</div>
+<div class="output-line">The curious will find what others miss.</div>
+<div class="output-line">Direct investigation required.</div>
+<div class="output-line system">Contact channels available for serious inquiries.</div>`,
+
+  experience: () => `
+<div class="output-line info">--- SECURITY JOURNEY ---</div>
+<div class="output-line">[2021-2026] Self-directed security research</div>
+<div class="output-line">    5+ years of continuous learning and practice</div>
+<div class="output-line">    Focus: Ethical hacking, CTF competitions, vulnerability research</div>
+<div class="output-line"></div>
+<div class="output-line">[2026-Present] University applications</div>
+<div class="output-line">    Applying to top-tier institutions (MIT, Stanford, etc.)</div>
+<div class="output-line">    Focus: Computer Science, Cybersecurity programs</div>
+<div class="output-line"></div>
+<div class="output-line">[2021-2026] CTF competitions & bug bounties</div>
+<div class="output-line">    Active participation in security challenges</div>
+<div class="output-line">    Bug bounty programs and responsible disclosure</div>
+<div class="output-line system">Journey timeline loaded</div>`,
+
+  contact: () => `
+<div class="output-line info">--- ENCRYPTED CONTACT CHANNELS ---</div>
+<div class="output-line">Email: talhabagci2008@gmail.com</div>
+<div class="output-line">PGP Key: [Available on request]</div>
+<div class="output-line">Signal: [For established contacts]</div>
+<div class="output-line system">Note: Encrypted communications preferred</div>
+<div class="output-line system">Response time: 24-48 hours</div>`,
+
+  social: () => `
+<div class="output-line info">--- SOCIAL PROFILES ---</div>
+<div class="output-line">GitHub: github.com/yourusername</div>
+<div class="output-line">LinkedIn: linkedin.com/in/yourusername</div>
+<div class="output-line">Twitter: @yourusername</div>
+<div class="output-line system">Social profiles loaded</div>`,
+
+  philosophy: () => `
+<div class="output-line info">--- CORE PHILOSOPHY ---</div>
+<div class="output-line">Breaking is not destruction - it's understanding.</div>
+<div class="output-line">To break something, you must first truly see it.</div>
+<div class="output-line">The art of breaking is the art of seeing what others miss.</div>
+<div class="output-line">Vision precedes vulnerability. Perception precedes penetration.</div>
+<div class="output-line">The most powerful exploits begin with the deepest observations.</div>
+<div class="output-line system">Philosophy module loaded</div>`,
+
+  clear: () => {
+    terminalOutput.innerHTML = '';
+    return '';
+  },
+
+  exit: () => {
+    return `
+<div class="output-line success">Terminating deep layer session...</div>
+<div class="output-line system">Erasing digital footprint...</div>
+<div class="output-line system">Making it look like this never happened...</div>`;
+  }
+};
+
+function executeCommand(cmd) {
+  const trimmedCmd = cmd.trim().toLowerCase();
+
+  if (trimmedCmd === 'reset') {
+    const output = commands.reset();
+    terminalOutput.innerHTML += `<div class="output-line command">root@deep-layer:~# ${escapeHtml(cmd)}</div>`;
+    terminalOutput.innerHTML += output;
+    setTimeout(() => {
+      localStorage.removeItem('layer_exited');
+      window.location.reload();
+    }, 1500);
+    return;
+  }
+
+  if (trimmedCmd === 'exit') {
+    const output = commands.exit();
+    terminalOutput.innerHTML += `<div class="output-line command">root@deep-layer:~# ${escapeHtml(cmd)}</div>`;
+    terminalOutput.innerHTML += output;
+    setTimeout(() => {
+      localStorage.setItem('layer_exited', 'true');
+      window.location.href = '404.html';
+    }, 2000);
+    return;
+  }
+
+  terminalOutput.innerHTML += `<div class="output-line command">root@deep-layer:~# ${escapeHtml(cmd)}</div>`;
+
+  if (commands[trimmedCmd]) {
+    terminalOutput.innerHTML += commands[trimmedCmd]();
+  } else if (trimmedCmd === '') {
+    // Empty command, do nothing
+  } else {
+    terminalOutput.innerHTML += `<div class="output-line error">Command not found: ${cmd}. Type 'help' for available commands.</div>`;
+  }
+
+  terminalOutput.scrollTop = terminalOutput.scrollHeight;
+}
+
+promptInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    executeCommand(promptInput.value);
+    promptInput.value = '';
+  }
+});
+
+// Focus input on click
+document.addEventListener('click', () => {
+  promptInput.focus();
+});
+
+// Play ambient sound
+const ambientAudio = document.getElementById('ambient-sound');
+ambientAudio.volume = 0.1;
+ambientAudio.loop = true;
+
+// Play after user interaction (avoid autoplay blocking)
+document.addEventListener('click', () => {
+  ambientAudio.play().catch(e => console.log('Audio play failed:', e));
+}, { once: true });
+</script>
+
+</body>
+</html>

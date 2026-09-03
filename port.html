@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Port Security — Security Education</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-alt: #111111;
+            --fg: #e0e0e0;
+            --fg-muted: #888888;
+            --accent: #00ff88;
+            --accent-dim: rgba(0, 255, 136, 0.1);
+            --border: #222222;
+            --border-light: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--fg-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            color: var(--fg);
+            background: var(--bg-alt);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--fg-muted);
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::before {
+            content: "";
+            width: 3px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        p {
+            font-size: 15px;
+            color: var(--fg-muted);
+            margin-bottom: 16px;
+        }
+
+        .highlight {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        code {
+            background: var(--bg-alt);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--accent);
+        }
+
+        .port-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .port-table th,
+        .port-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .port-table th {
+            background: var(--bg-alt);
+            font-weight: 500;
+            color: var(--fg);
+        }
+
+        .port-table td {
+            color: var(--fg-muted);
+        }
+
+        .port-table tr:hover {
+            background: var(--bg-alt);
+        }
+
+        ul {
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: var(--fg-muted);
+        }
+
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        .warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            padding: 16px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .warning strong {
+            color: #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .container {
+                padding: 40px 20px;
+            }
+
+            .port-table {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="main.html" class="back-link">← Back to Portfolio</a>
+        <span class="badge">Security Education</span>
+        <h1>Port Security</h1>
+        <p class="subtitle">Understanding network entry points and attack surfaces</p>
+    </div>
+
+    <p>
+        Ports are the doors of a system — every communication, every request, every attack starts with one of these doors.
+        Understanding ports means understanding the "entry points" of the digital world.
+    </p>
+
+    <h2>What Exactly Is a Port?</h2>
+    <p>
+        A port is simply a <strong>number assigned to a process or service</strong>.
+        When data travels across a network, ports ensure it reaches the right application.
+    </p>
+
+    <table class="port-table">
+        <thead>
+            <tr>
+                <th>Port</th>
+                <th>Service</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>80</code></td>
+                <td>HTTP</td>
+                <td>Unencrypted web traffic</td>
+            </tr>
+            <tr>
+                <td><code>443</code></td>
+                <td>HTTPS</td>
+                <td>Encrypted web traffic</td>
+            </tr>
+            <tr>
+                <td><code>22</code></td>
+                <td>SSH</td>
+                <td>Secure remote login</td>
+            </tr>
+            <tr>
+                <td><code>3306</code></td>
+                <td>MySQL</td>
+                <td>Database server</td>
+            </tr>
+            <tr>
+                <td><code>3389</code></td>
+                <td>RDP</td>
+                <td>Remote Desktop Protocol</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Why Security Professionals Care About Ports</h2>
+    <p>Because ports tell them <strong>what is running</strong>, <strong>how it communicates</strong>, and <strong>how they might break in</strong>.</p>
+
+    <ul>
+        <li><strong>Open ports</strong> → possible entry points for attackers</li>
+        <li><strong>Closed ports</strong> → safer, but still discoverable</li>
+        <li><strong>Filtered ports</strong> → firewalls are actively monitoring</li>
+    </ul>
+
+    <h2>Real-World Attack Examples</h2>
+    <div class="highlight">
+        <p><strong>Port 22 open?</strong> → Brute-force SSH attacks</p>
+        <p><strong>Port 3306 open?</strong> → Database extraction attempts</p>
+        <p><strong>Port 21 open?</strong> → Anonymous FTP abuse</p>
+        <p><strong>Port 445 open?</strong> → EternalBlue (WannaCry) exploitation</p>
+    </div>
+
+    <h2>How Port Scanning Works</h2>
+    <p>
+        Tools like <strong>Nmap</strong> send packets to ports and analyze responses:
+    </p>
+    <ul>
+        <li><strong>SYN scan</strong> → Stealthy & fast detection</li>
+        <li><strong>UDP scan</strong> → Silent but slower detection</li>
+        <li><strong>Service enumeration</strong> → "What exactly runs here?"</li>
+    </ul>
+
+    <div class="warning">
+        <strong>Security Note:</strong> Always scan only systems you have permission to test. Unauthorized port scanning is illegal in most jurisdictions.
+    </div>
+
+    <h2>The Core Philosophy</h2>
+    <div class="highlight">
+        <p style="font-size: 16px; color: var(--fg);">
+            "If you control the ports, you control the surface."<br>
+            <span style="color: var(--fg-muted); font-size: 14px;">Cybersecurity starts with knowing what's open — and why.</span>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS Vulnerabilities — Security Education</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-alt: #111111;
+            --fg: #e0e0e0;
+            --fg-muted: #888888;
+            --accent: #00ff88;
+            --accent-dim: rgba(0, 255, 136, 0.1);
+            --border: #222222;
+            --border-light: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--fg-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover {
+            color: var(--fg);
+            background: var(--bg-alt);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--accent-dim);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--fg-muted);
+            font-style: italic;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::before {
+            content: "";
+            width: 3px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        p {
+            font-size: 15px;
+            color: var(--fg-muted);
+            margin-bottom: 16px;
+        }
+
+        .code-block {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 6px;
+            margin: 16px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            background: none;
+            padding: 0;
+            color: var(--fg);
+        }
+
+        .highlight {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        ul {
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: var(--fg-muted);
+        }
+
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        .danger {
+            background: rgba(255, 82, 82, 0.1);
+            border: 1px solid rgba(255, 82, 82, 0.3);
+            padding: 16px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .danger strong {
+            color: #ff5252;
+        }
+
+        .safe {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 16px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .safe strong {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .container {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="header">
+        <a href="main.html" class="back-link">← Back to Portfolio</a>
+        <span class="badge">Security Education</span>
+        <h1>XSS Vulnerabilities</h1>
+        <p class="subtitle">When websites trust user input a little too much</p>
+    </div>
+
+    <h2>What is XSS?</h2>
+    <p>
+        Cross-Site Scripting (XSS) is a vulnerability that lets attackers inject malicious JavaScript into web pages.
+        When the victim loads the page, the script executes inside their browser — as if it were a
+        trusted part of the site.
+    </p>
+
+    <h2>Why is it Dangerous?</h2>
+    <p>Because a successful XSS attack can:</p>
+    <ul>
+        <li>Steal cookies & session tokens</li>
+        <li>Impersonate users and perform actions on their behalf</li>
+        <li>Modify page content and redirect users</li>
+        <li>Spread worms across the site</li>
+        <li>Install keyloggers and malware</li>
+    </ul>
+
+    <h2>Vulnerable Example</h2>
+    <div class="code-block">
+        <code>&lt;input type="text" name="username"&gt;</code><br><br>
+        <code>&lt;!-- Attacker injects: --&gt;</code><br>
+        <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
+    </div>
+
+    <div class="danger">
+        <strong>⚠️ Vulnerable Output:</strong><br>
+        The script executes because the input is not sanitized before rendering.
+    </div>
+
+    <h2>Secure Implementation</h2>
+    <div class="code-block">
+        <code>// Input sanitization</code><br>
+        <code>function sanitize(input) {</code><br>
+        <code>  return input.replace(/[&<>"']/g, function(m) {</code><br>
+        <code>    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];</code><br>
+        <code>  });</code><br>
+        <code>}</code><br><br>
+        <code>// Output encoding</code><br>
+        <code>escapeHTML(userInput)</code>
+    </div>
+
+    <div class="safe">
+        <strong>✅ Secure Output:</strong><br>
+        Special characters are escaped, preventing script execution.
+    </div>
+
+    <h2>Defense Strategies</h2>
+    <ul>
+        <li><strong>Always sanitize user input</strong> — Never trust data from users</li>
+        <li><strong>Use Content Security Policy (CSP)</strong> — Restrict script sources</li>
+        <li><strong>Escape HTML before rendering</strong> — Convert special characters</li>
+        <li><strong>Avoid inline JavaScript</strong> — Use event handlers instead</li>
+        <li><strong>Use HTTPOnly cookies</strong> — Prevent JavaScript access</li>
+        <li><strong>Implement proper CORS</strong> — Control cross-origin requests</li>
+    </ul>
+
+    <h2>Types of XSS</h2>
+    <div class="highlight">
+        <p><strong>Stored XSS:</strong> Malicious script is stored on the server and executed when users access the affected page.</p>
+        <p><strong>Reflected XSS:</strong> Malicious script is reflected off a web server, such as in an error message or search result.</p>
+        <p><strong>DOM-based XSS:</strong> Vulnerability exists in client-side code rather than server-side code.</p>
+    </div>
+
+    <div class="danger">
+        <strong>Important:</strong> XSS remains one of the most common web vulnerabilities. Always implement proper input validation and output encoding.
+    </div>
+</div>
+
+</body>
+</html>

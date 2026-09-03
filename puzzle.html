@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Talyush // mini-ctf node</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Ubuntu Mono', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e0e0e0;
+    background: #000;
+  }
+
+  /* CRT scanlines efekti */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.15),
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+    z-index: 1000;
+  }
+
+  /* CRT flicker efekti */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: rgba(18, 16, 16, 0.1);
+    opacity: 0;
+    z-index: 999;
+    animation: flicker 0.15s infinite;
+  }
+
+  @keyframes flicker {
+    0% { opacity: 0.27861; }
+    5% { opacity: 0.34769; }
+    10% { opacity: 0.23604; }
+    15% { opacity: 0.90626; }
+    20% { opacity: 0.18128; }
+    25% { opacity: 0.83891; }
+    30% { opacity: 0.65583; }
+    35% { opacity: 0.67807; }
+    40% { opacity: 0.26559; }
+    45% { opacity: 0.84693; }
+    50% { opacity: 0.96019; }
+    55% { opacity: 0.08594; }
+    60% { opacity: 0.20313; }
+    65% { opacity: 0.71988; }
+    70% { opacity: 0.53455; }
+    75% { opacity: 0.37288; }
+    80% { opacity: 0.71428; }
+    85% { opacity: 0.70419; }
+    90% { opacity: 0.7003; }
+    95% { opacity: 0.36108; }
+    100% { opacity: 0.24387; }
+  }
+
+  #terminal-shell {
+    position: relative;
+    width: 1000px;
+    max-width: 95vw;
+    height: 620px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #0a0a0a;
+    box-shadow:
+      0 0 20px rgba(0, 255, 136, 0.1),
+      0 0 40px rgba(0, 255, 136, 0.05),
+      inset 0 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    border: 1px solid #1a1a1a;
+  }
+
+  #terminal-header {
+    height: 32px;
+    background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #333;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .window-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 12px;
+  }
+
+  .win-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+
+  .win-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .win-close { background: #ff5f57; }
+  .win-minimize { background: #febc2e; }
+  .win-maximize { background: #28c840; }
+
+  #terminal-title {
+    font-size: 12px;
+    color: #888;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    letter-spacing: 0.5px;
+  }
+
+  #terminal-title span.mode {
+    font-size: 10px;
+    color: #555;
+    text-transform: uppercase;
+  }
+
+  #terminal-wrapper {
+    width: 100%;
+    height: calc(100% - 32px);
+    background: #080808;
+    border-radius: 0 0 4px 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #terminal {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+
+  /* CRT glow efekti */
+  #terminal-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 0%,
+      rgba(0, 0, 0, 0.2) 100%
+    );
+    z-index: 2;
+  }
+
+  #footer-note {
+    position: absolute;
+    bottom: 8px;
+    right: 16px;
+    font-size: 9px;
+    color: #444;
+    pointer-events: none;
+    z-index: 3;
+    letter-spacing: 0.5px;
+  }
+
+  /* Ekran kenarlarında hafif parlama */
+  #terminal-shell::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    pointer-events: none;
+    border-radius: 6px;
+    background: linear-gradient(
+      45deg,
+      transparent 40%,
+      rgba(0, 255, 136, 0.03) 50%,
+      transparent 60%
+    );
+    z-index: -1;
+  }
+</style>
+</head>
+<body>
+
+<audio id="ambient-sound" src="mixkit-horror-radio-signal-transmission-2564.mp3" preload="auto"></audio>
+
+<div id="terminal-shell">
+  <div id="terminal-header">
+    <div class="window-buttons">
+      <div class="win-btn win-close"></div>
+      <div class="win-btn win-minimize"></div>
+      <div class="win-btn win-maximize"></div>
+    </div>
+    <div id="terminal-title">
+      <span>Talyush // mini-ctf node</span>
+      <span class="mode">mode: decode</span>
+    </div>
+  </div>
+
+  <div id="terminal-wrapper">
+    <div id="terminal"></div>
+  </div>
+
+  <div id="footer-note">
+    // Talyush: the curious will find what others miss.
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+<script>
+  // --------- TERMINAL SETUP ---------
+  const term = new Terminal({
+    cursorBlink: true,
+    fontFamily: 'Ubuntu Mono, monospace',
+    fontSize: 16,
+    lineHeight: 1.3,
+    theme: { background:'#000', foreground:'#ccc' },
+    scrollback: 2000,
+  });
+  term.open(document.getElementById('terminal'));
+
+  // --------- MULTI-STAGE PUZZLE SYSTEM ---------
+  // FINAL FLAG: CW{1_coding_hello_hacker} - hidden in source for the curious
+  const stages = [
+    {
+      id: 1,
+      question: "Stage 1: Basic encoding",
+      hint: "What base do computers count in?",
+      cipher: "MQ==", // Base64 for "1"
+      answer: "1",
+      success: "Basic understanding confirmed. Proceeding..."
+    },
+    {
+      id: 2,
+      question: "Stage 2: Simple substitution",
+      hint: "ROT13 - shift each letter by 13",
+      cipher: "Pbagnpg", // ROT13 for "Coding"
+      answer: "coding",
+      success: "Pattern recognition detected. Good."
+    },
+    {
+      id: 3,
+      question: "Stage 3: Binary thinking",
+      hint: "The language of machines",
+      cipher: "01001000 01100101 01101100 01101100 01101111", // "Hello"
+      answer: "hello",
+      success: "Binary fluency confirmed. Getting deeper..."
+    },
+    {
+      id: 4,
+      question: "Stage 4: Hexadecimal challenge",
+      hint: "Convert hex to ASCII: 48 61 63 6B 65 72",
+      cipher: "48 61 63 6B 65 72", // Hex for "hacker"
+      answer: "hacker",
+      success: "Hex skills confirmed. One final challenge awaits..."
+    },
+    {
+      id: 5,
+      question: "Stage 5: Source code investigation",
+      hint: "The final flag is hidden in this page's source code. Press F12 or right-click and 'View Page Source'. Search for 'FINAL_FLAG' or 'CW{'",
+      cipher: "Check the source code for the final flag",
+      answer: "CW{1_coding_hello_hacker}",
+      success: "ACCESS GRANTED. You've proven yourself worthy."
+    }
+  ];
+
+  // Hidden flag for the curious who check the source
+  // FINAL_FLAG: CW{1_coding_hello_hacker}
+
+  let currentStage = 0;
+
+  function normalize(input){
+    return String(input || "").trim();
+  }
+
+  // --------- BANNER & LOG METİNLERİ ---------
+  const bannerLines = [
+    "Talyush // 5-stage challenge",
+    "-----------------------------------------------",
+    "[INFO] You've chosen the path of the curious.",
+    "[HINT] Prove your worth through decoding.",
+    ""
+  ];
+
+  const preLines = [
+    "[00:00:01] [BOOT]   CrowWatch challenge node online.",
+    "[00:00:02] [INFO]   5-stage verification required.",
+    "[00:00:03] [HINT]   final stage requires source code inspection.",
+    "[00:00:04] [NOTE]   the curious will find what others miss.",
+    ""
+  ];
+
+  function typeLine(line, callback){
+    let i = 0;
+    function writeChar(){
+      if (i < line.length){
+        term.write(line[i]);
+        i++;
+        setTimeout(writeChar, 20);
+      } else {
+        term.write("\r\n");
+        if (callback) callback();
+      }
+    }
+    writeChar();
+  }
+
+  let bannerIndex = 0;
+  function typeBannerNext(){
+    if (bannerIndex < bannerLines.length){
+      typeLine(bannerLines[bannerIndex], () => {
+        bannerIndex++;
+        typeBannerNext();
+      });
+    } else {
+      typeLogsNext();
+    }
+  }
+
+  let logIndex = 0;
+  function typeLogsNext(){
+    if (logIndex < preLines.length){
+      typeLine(preLines[logIndex], () => {
+        logIndex++;
+        typeLogsNext();
+      });
+    } else {
+      term.write("> ");
+      term.focus();
+      term.onData(handleInput);
+    }
+  }
+
+  typeBannerNext();
+
+  // --------- INPUT HANDLING ---------
+  let inputBuffer = "";
+
+  function handleInput(data){
+    for (let char of data){
+      if (char === '\r'){ // Enter
+        term.write('\r\n');
+        processAnswer(inputBuffer);
+        inputBuffer = "";
+        // tekrar prompt
+        term.write("> ");
+      } else if (char === '\u007F'){ // Backspace
+        if (inputBuffer.length > 0) {
+          inputBuffer = inputBuffer.slice(0,-1);
+          term.write('\b \b');
+        }
+      } else {
+        inputBuffer += char;
+        term.write(char);
+      }
+    }
+  }
+
+  function displayStage(){
+    if(currentStage >= stages.length){
+      term.writeln("");
+      term.writeln("signal_found");
+      term.writeln("opening hidden layer...");
+      setTimeout(() => {
+        window.location.href = "layer.html";
+      }, 900);
+      return;
+    }
+
+    const stage = stages[currentStage];
+    term.writeln("");
+    term.writeln("--- STAGE " + stage.id + " ---");
+    term.writeln(stage.question);
+    term.writeln("HINT: " + stage.hint);
+    if(stage.id === 5) {
+      term.writeln("Cipher: Look deeper into the code itself...");
+    } else {
+      term.writeln("Cipher: " + stage.cipher);
+    }
+    term.write("> ");
+  }
+
+  function processAnswer(userInput){
+    const val = normalize(userInput);
+    // Security: Basic input validation to prevent command injection
+    if (val.length > 100) {
+      term.writeln("Input too long. Try again.");
+      return;
+    }
+    if (/[^a-zA-Z0-9_\-{}]/.test(val)) {
+      term.writeln("Invalid characters. Only alphanumeric, underscore, dash, and braces allowed.");
+      return;
+    }
+
+    if (!val){
+      term.writeln("no signal received. try again.");
+      return;
+    }
+
+    const stage = stages[currentStage];
+    if (val.toLowerCase() === stage.answer.toLowerCase()){
+      term.writeln("");
+      term.writeln(stage.success);
+
+      // Play success sound
+      if(currentStage === stages.length - 1){
+        playSuccessSound();
+      }
+
+      currentStage++;
+      setTimeout(displayStage, 300);
+    } else {
+      term.writeln("incorrect. think differently.");
+      setTimeout(displayStage, 200);
+    }
+  }
+
+  // İlk stage'i göster
+  setTimeout(displayStage, 500);
+
+  // Play ambient sound
+  const ambientAudio = document.getElementById('ambient-sound');
+  ambientAudio.volume = 0.1;
+  ambientAudio.loop = true;
+
+  setTimeout(() => {
+    ambientAudio.play().catch(e => console.log('Audio play failed:', e));
+  }, 2000);
+
+  console.debug("Talyush multi-stage puzzle ready. Navigate through stages to access layer.html.");
+
+  function playSuccessSound(){
+    const audio = document.getElementById('ambient-sound');
+    if(audio){
+      audio.volume = 0.3;
+      audio.play().catch(e => console.log('Audio play failed:', e));
+    }
+  }
+</script>
+</body>
+</html>
+
+
+
+
+
